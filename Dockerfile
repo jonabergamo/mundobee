@@ -1,15 +1,23 @@
-# Usando a imagem oficial do Python
-FROM python:3.9-slim
+# Utilizar a imagem base oficial do Node.js
+FROM node:18
 
-# Definindo o diretório de trabalho
+# Definir o diretório de trabalho no container
 WORKDIR /usr/src/app
 
-# Copiando os arquivos necessários
-COPY requirements.txt ./
-COPY mqtt_client.py ./
+# Copiar o arquivo package.json e package-lock.json (ou yarn.lock)
+COPY package*.json ./
 
-# Instalando as dependências
-RUN pip install --no-cache-dir -r requirements.txt
+# Instalar todas as dependências
+RUN npm install
 
-# Comando para rodar o script Python
-CMD ["python", "./mqtt_client.py"]
+# Copiar os arquivos restantes do projeto para o container
+COPY . .
+
+# Compilar a aplicação
+RUN npm run build
+
+# Expõe a porta que o NestJS irá rodar
+EXPOSE 3300
+
+# Comando para rodar a aplicação
+CMD ["node", "dist/main"]
