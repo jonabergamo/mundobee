@@ -1,23 +1,28 @@
-# Utilizar a imagem base oficial do Node.js
-FROM node:18
+FROM node:18 AS builder
 
-# Definir o diretório de trabalho no container
-WORKDIR /usr/src/app
+# Create app directory
+WORKDIR /app
 
-# Copiar o arquivo package.json e package-lock.json (ou yarn.lock)
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Instalar todas as dependências
+# Install app dependencies
 RUN npm install
 
-# Copiar os arquivos restantes do projeto para o container
 COPY . .
 
-# Compilar a aplicação
+# Reconstrói bcrypt dentro do ambiente do Docker
+RUN npm rebuild bcrypt --build-from-source
+
+
 RUN npm run build
 
-# Expõe a porta que o NestJS irá rodar
-EXPOSE 3300
+FROM node:18
 
-# Comando para rodar a aplicação
-CMD ["node", "dist/main"]
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3333
+CMD [ "npm", "run", "start:prod" ]

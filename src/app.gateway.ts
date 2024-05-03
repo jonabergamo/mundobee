@@ -1,12 +1,20 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket, MessageBody } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  ConnectedSocket,
+  MessageBody,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: "*", // Ajuste isso conforme sua política de CORS
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    origin: '*', // Ajuste isso conforme sua política de CORS
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
@@ -20,19 +28,27 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('subscribe')
-  handleSubscribe(@ConnectedSocket() client: Socket, @MessageBody() data: {topic:string}): void {
-      console.log("Received data:", data); // Confirma que os dados estão corretos
-      console.log(`Subscribing client ${client.id} to topic ${data.topic}`);
-      client.join('device/teste');
+  handleSubscribe(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: string,
+  ): void {
+    const parsedData = JSON.parse(data);
+    console.log(`Subscribing client ${client.id} to topic ${parsedData.topic}`);
+    client.join(parsedData.topic);
   }
 
   @SubscribeMessage('unsubscribe')
-  handleUnsubscribe(@ConnectedSocket() client: Socket, @MessageBody() data: { topic: string }) {
-    console.log(`Unsubscribing ${client.id} from topic ${data.topic}`);
-    client.leave(data.topic);
+  handleUnsubscribe(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: string,
+  ) {
+    console.log(data);
+    const parsedData = JSON.parse(data);
+    console.log(`Unsubscribing ${client.id} from topic ${parsedData.topic}`);
+    client.leave(parsedData.topic);
   }
 
   broadcastMessage(topic: string, message: string) {
     this.server.to(topic).emit(topic, message);
-}
+  }
 }
