@@ -4,7 +4,7 @@ import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid'; // Importando a função para gerar UUID v4
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
       throw new HttpException('User already exists', 409);
     }
     const hash = await this.hashData(dto.password);
-    const uniqueId = uuidv4(); // Gerar um UUID v4
+    const uniqueId = new ObjectId().toHexString(); // Convert ObjectId to string
 
     const newUser = await this.prisma.user.create({
       data: {
