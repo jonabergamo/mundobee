@@ -19,9 +19,30 @@ model User {
   updatedAt DateTime @updatedAt
   email     String   @unique
   fullName  String
-  base64    String
+  base64    String?
   hash      String
   hashedRt  String?
 
   @@map("users")
+}
+
+model Configuration {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  humidity    Int
+  temperature Int
+  devices     Device[]
+
+  @@map("configs")
+}
+
+model Device {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  isOn            Boolean        @default(false)
+  inCount         Int            @default(0)
+  outCount        Int            @default(0)
+  configuration   Configuration? @relation(fields: [configurationId], references: [id])
+  configurationId String?        @db.ObjectId
+
+  @@map("devices")
 }
