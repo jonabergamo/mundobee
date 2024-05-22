@@ -15,6 +15,7 @@ COPY . .
 # Reconstrói bcrypt dentro do ambiente do Docker
 RUN npm rebuild bcrypt --build-from-source
 
+RUN npx prisma generate
 
 RUN npm run build
 

@@ -4,13 +4,13 @@ import { DeviceService } from "./device/device.service";
 
 @WebSocketGateway({
   cors: {
-    origin: "*", // Ajuste isso conforme sua política de CORS
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
 })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private deviceService: DeviceService) {} // Injete o DeviceService
+  constructor(private deviceService: DeviceService) {}
 
   @WebSocketServer() server: Server;
 
@@ -31,7 +31,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("unsubscribe")
   handleUnsubscribe(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
-    console.log(data);
     const parsedData = JSON.parse(data);
     console.log(`Unsubscribing ${client.id} from topic ${parsedData.topic}`);
     client.leave(parsedData.topic);
@@ -44,6 +43,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const updatedDevice = await this.deviceService.toggleDeviceState(deviceId, isOn);
       this.server.to(deviceId).emit("deviceUpdated", JSON.stringify(updatedDevice));
       console.log(`Device ${deviceId} state updated to ${isOn}`);
+
+      // Publicar o estado atualizado no tópico MQTT
+      this.broadcastMessage(`device/${deviceId}`, JSON.stringify(updatedDevice));
     } catch (error) {
       console.error(`Error toggling device state: ${error.message}`);
       client.emit("error", "Failed to toggle device state");

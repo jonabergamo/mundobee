@@ -4,7 +4,7 @@ import { AppGateway } from "../app.gateway";
 
 @Injectable()
 export class MqttService implements OnModuleInit {
-  private client = null;
+  private client: mqtt.MqttClient;
 
   constructor(private gateway: AppGateway) {}
 
@@ -24,5 +24,9 @@ export class MqttService implements OnModuleInit {
       console.log(`Received message: ${message.toString()} from topic: ${topic}`);
       this.gateway.broadcastMessage(topic, message.toString());
     });
+  }
+
+  sendMessage(topic: string, message: string) {
+    this.client.publish(topic, message);
   }
 }
