@@ -21,6 +21,8 @@ RUN npm run build
 
 FROM node:18
 
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git -y 
+
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
