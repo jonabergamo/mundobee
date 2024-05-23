@@ -5,15 +5,19 @@ import * as bcrypt from "bcrypt";
 import { Tokens } from "./types";
 import { JwtService } from "@nestjs/jwt";
 import { ObjectId } from "mongodb";
+import { LogService } from "src/logger/log.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private loggerService: LogService,
   ) {}
 
   async signupLocal(dto: SignupDto): Promise<Tokens> {
+    this.loggerService.debug(`Serviço de criação de usuario acionado`);
+
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -33,10 +37,13 @@ export class AuthService {
     });
     const tokens = await this.getTokens(newUser.id, newUser.email);
     await this.updateRtHash(newUser.id, tokens.refresh_token);
+    this.loggerService.debug(`Usuario ${newUser.email} adicionado e logado na aplicação`);
     return tokens;
   }
 
   async signinLocal(dto: AuthDto): Promise<Tokens> {
+    this.loggerService.debug(`Serviço de autenticação acionado`);
+
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -49,6 +56,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
+    this.loggerService.debug(`Usuario ${user.email} logado na aplicação`);
     return tokens;
   }
 
@@ -67,16 +75,23 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, rt: string) {
+    this.loggerService.debug(`Serviço de refresh token acionado`);
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
-    if (!user?.hashedRt) throw new ForbiddenException("Access Denied");
+    if (!user?.hashedRt) {
+      this.loggerService.error(`${user.email || userId} não está logado`);
+      throw new ForbiddenException("Access Denied");
+    }
 
     const rtMatches = await bcrypt.compare(rt, user.hashedRt);
 
-    if (!rtMatches) throw new ForbiddenException("Access Denied");
+    if (!rtMatches) {
+      this.loggerService.error(`${user.email || userId} refresh token inválido`);
+      throw new ForbiddenException("Access Denied");
+    }
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
@@ -128,3 +143,4 @@ export class AuthService {
     };
   }
 }
+
