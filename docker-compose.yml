@@ -44,6 +44,24 @@ services:
       - iot_network
     restart: always
 
+  mariadb:
+    image: mariadb:10
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mqtt
+      - MYSQL_USER=prisma # not used
+      - MYSQL_PASSWORD=prisma
+    ports:
+      - '4306:3306'
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--connect']
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    networks:
+      - iot_network
+
   # mongo:
   #   image: mongo:latest
   #   container_name: mongo
