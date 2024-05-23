@@ -1,11 +1,14 @@
 import { Module } from "@nestjs/common";
 import { DeviceService } from "./device.service";
 import { DeviceController } from "./device.controller";
-import { PrismaService } from "src/prisma/prisma.service"; // Importe o PrismaService se já não estiver global
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Device } from "./entities/device.entity";
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Device])],
   controllers: [DeviceController],
-  providers: [DeviceService, PrismaService],
+  providers: [DeviceService],
   exports: [DeviceService],
 })
 export class DeviceModule {}
+

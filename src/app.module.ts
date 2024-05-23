@@ -4,27 +4,29 @@ import { AppGateway } from "./app.gateway";
 import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./auth/common/guards";
 import { AuthModule } from "./auth/auth.module";
-import { PrismaModule } from "./prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { typeOrmConfig } from "./config/typeorm.config";
 
 @Module({
   imports: [
     DeviceModule,
-    AuthModule,
-    PrismaModule,
+    // AuthModule,
+    TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({
       envFilePath: ".env",
     }),
   ],
   controllers: [],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AtGuard,
-    },
-    AppGateway,
-    MqttService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AtGuard,
+    // },
+    // AppGateway,
+    // MqttService,
   ],
 })
 export class AppModule {}
+
