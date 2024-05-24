@@ -1,50 +1,48 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthDto, SignupDto } from './dto';
-import { Tokens } from './types';
-import { RtGuard } from './common/guards';
-import { GetCurrentUser, GetCurrentUserId, Public } from './common/decorators';
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { AuthDto, SignupDto } from "./dto";
+import { Tokens } from "./types";
+import { RtGuard } from "./common/guards";
+import { GetCurrentUser, GetCurrentUserId, Public } from "./common/decorators";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from "@nestjs/swagger";
 
-@Controller('auth')
+@ApiTags("auth")
+@Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('local/signup')
+  @Post("local/signup")
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto:  SignupDto ): Promise<Tokens> {
+  signupLocal(@Body() dto: SignupDto): Promise<Tokens> {
     return this.authService.signupLocal(dto);
   }
 
   @Public()
-  @Post('local/signin')
+  @Post("local/signin")
   @HttpCode(HttpStatus.OK)
   signinLocal(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signinLocal(dto);
   }
 
-  @Post('logout')
+  @ApiBearerAuth()
+  @Post("logout/:id")
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: string) {
+  logout(@Param("id") userId: string) {
     return this.authService.logout(userId);
   }
 
+  @ApiHeader({
+    name: "Authorization",
+    description: "Refresh token with 'Bearer'",
+  })
   @Public()
   @UseGuards(RtGuard)
-  @Post('refresh')
+  @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
-    @GetCurrentUserId() userId: string,
-    @GetCurrentUser('refreshToken') refreshToken: string,
-  ) {
+  refreshTokens(@GetCurrentUserId() userId: string, @GetCurrentUser("refreshToken") refreshToken: string) {
     console.log(refreshToken, userId);
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }
+

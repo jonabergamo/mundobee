@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from "@nestjs/common";
 import { DeviceService } from "./device.service";
 import { CreateDeviceDto, UpdateDeviceDto } from "./dto";
+import { ApiBearerAuth, ApiBody, ApiTags } from "@nestjs/swagger";
 
+@ApiBearerAuth()
+@ApiTags("devices")
 @Controller("devices")
 export class DeviceController {
   constructor(private deviceService: DeviceService) {}
@@ -37,3 +40,4 @@ export class DeviceController {
     }
   }
 }
+

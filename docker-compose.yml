@@ -58,6 +58,8 @@ services:
       interval: 5s
       timeout: 2s
       retries: 20
+    volumes:
+      - mariadb:/data 
     networks:
       - iot_network
 
@@ -83,4 +85,5 @@ networks:
 
 volumes:
   node-red-data: {}
+  mariadb: {}
   # mongo-data: {}

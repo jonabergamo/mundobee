@@ -1,3 +1,4 @@
+import { UserModule } from "./user/user.module";
 import { Module } from "@nestjs/common";
 import { MqttService } from "./mqtt/mqtt.service";
 import { AppGateway } from "./app.gateway";
@@ -11,8 +12,9 @@ import { typeOrmConfig } from "./config/typeorm.config";
 
 @Module({
   imports: [
+    UserModule,
     DeviceModule,
-    // AuthModule,
+    AuthModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({
       envFilePath: ".env",
@@ -20,12 +22,12 @@ import { typeOrmConfig } from "./config/typeorm.config";
   ],
   controllers: [],
   providers: [
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AtGuard,
-    // },
-    // AppGateway,
-    // MqttService,
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    },
+    AppGateway,
+    MqttService,
   ],
 })
 export class AppModule {}
