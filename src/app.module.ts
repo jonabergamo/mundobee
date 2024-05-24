@@ -1,3 +1,4 @@
+import { ConfigurationModule } from "./configuration/configuration.module";
 import { UserModule } from "./user/user.module";
 import { Module } from "@nestjs/common";
 import { MqttService } from "./mqtt/mqtt.service";
@@ -12,6 +13,7 @@ import { typeOrmConfig } from "./config/typeorm.config";
 
 @Module({
   imports: [
+    ConfigurationModule,
     UserModule,
     DeviceModule,
     AuthModule,

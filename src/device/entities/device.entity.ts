@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Configuration } from "./configuration.entity";
+import { Configuration } from "../../configuration/entities/configuration.entity";
 
 @Entity()
 export class Device {
