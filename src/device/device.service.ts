@@ -1,44 +1,41 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { CreateDeviceDto, UpdateDeviceDto } from "./dto";
+import { Device } from "./entities/device.entity";
 
 @Injectable()
 export class DeviceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Device)
+    private deviceRepository: Repository<Device>,
+  ) {}
 
-  async createDevice(data: CreateDeviceDto) {
-    return this.prisma.device.create({
-      data,
-    });
+  async createDevice(data: CreateDeviceDto): Promise<Device> {
+    const device = this.deviceRepository.create(data);
+    return this.deviceRepository.save(device);
   }
 
-  async toggleDeviceState(id: string, isOn: boolean) {
-    return this.prisma.device.update({
-      where: { id },
-      data: { isOn },
-    });
+  async toggleDeviceState(id: string, isOn: boolean): Promise<Device> {
+    await this.deviceRepository.update(id, { isOn });
+    return this.deviceRepository.findOne({ where: { id: id } });
   }
 
-  async findAllDevices() {
-    return this.prisma.device.findMany();
+  async findAllDevices(): Promise<Device[]> {
+    return this.deviceRepository.find();
   }
 
-  async findDeviceById(id: string) {
-    return this.prisma.device.findUnique({
-      where: { id },
-    });
+  async findDeviceById(id: string): Promise<Device> {
+    return this.deviceRepository.findOne({ where: { id: id } });
   }
 
-  async updateDevice(id: string, data: UpdateDeviceDto) {
-    return this.prisma.device.update({
-      where: { id },
-      data,
-    });
+  async updateDevice(id: string, data: UpdateDeviceDto): Promise<Device> {
+    await this.deviceRepository.update(id, data);
+    return this.deviceRepository.findOne({ where: { id: id } });
   }
 
-  async deleteDevice(id: string) {
-    return this.prisma.device.delete({
-      where: { id },
-    });
+  async deleteDevice(id: string): Promise<void> {
+    await this.deviceRepository.delete(id);
   }
 }
+
