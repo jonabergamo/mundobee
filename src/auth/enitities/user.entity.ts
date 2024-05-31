@@ -1,5 +1,6 @@
 // src/auth/user.entity.ts
 
+import { Exclude } from "class-transformer";
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -13,13 +14,15 @@ export class User extends BaseEntity {
   @Column()
   fullName: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "text" })
   base64?: string;
 
-  @Column({ select: false })
+  @Column()
+  @Exclude()
   hash: string;
 
-  @Column({ nullable: true, select: false })
+  @Exclude()
+  @Column({ nullable: true })
   hashedRt?: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
@@ -27,5 +30,9 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
   updatedAt: Date;
-}
 
+  constructor(partial: Partial<User>) {
+    super();
+    Object.assign(this, partial);
+  }
+}

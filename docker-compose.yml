@@ -26,22 +26,22 @@ services:
       - node-red-data:/data
     restart: always
 
-  nestjs-app:
-    build: .
-    container_name: nestjs-app
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - JWT_AT_SECRET=${JWT_AT_SECRET}
-      - JWT_RT_SECRET=${JWT_RT_SECRET}
-      - DATABASE_URL=${DATABASE_URL}
-    ports:
-      - "${APP_PORT}:3333"
-    depends_on:
-      - mosquitto
-      - mariadb
-    networks:
-      - iot_network
-    restart: always
+  # nestjs-app:
+  #   build: .
+  #   container_name: nestjs-app
+  #   environment:
+  #     - NODE_ENV=${NODE_ENV}
+  #     - JWT_AT_SECRET=${JWT_AT_SECRET}
+  #     - JWT_RT_SECRET=${JWT_RT_SECRET}
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   ports:
+  #     - "${APP_PORT}:3333"
+  #   depends_on:
+  #     - mosquitto
+  #     - mariadb
+  #   networks:
+  #     - iot_network
+  #   restart: always
 
   mariadb:
     image: mariadb:10
@@ -59,7 +59,7 @@ services:
       timeout: 2s
       retries: 20
     volumes:
-      - mariadb:/data 
+      - mariadb-data:/var/lib/mysql
     networks:
       - iot_network
 
@@ -85,5 +85,5 @@ networks:
 
 volumes:
   node-red-data: {}
-  mariadb: {}
+  mariadb-data: {}
   # mongo-data: {}
