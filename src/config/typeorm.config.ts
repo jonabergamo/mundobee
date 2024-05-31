@@ -3,6 +3,7 @@ import { User } from "src/auth/enitities/user.entity";
 import { Configuration } from "src/device/entities/configuration.entity";
 import { Device } from "src/device/entities/device.entity";
 import { Metrics } from "src/metrics/entities/metrics.entity";
+import { Preset } from "src/presets/preset/entities/preset.entity";
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: "mariadb",
@@ -11,7 +12,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: "prisma",
   password: "prisma",
   database: "mqtt",
-  entities: [Device, Configuration, User, Metrics],
+  entities: [Device, Configuration, User, Metrics,Preset],
   synchronize: true,
   bigNumberStrings: true,
   multipleStatements: true,
