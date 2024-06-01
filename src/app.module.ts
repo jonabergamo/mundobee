@@ -15,6 +15,8 @@ import { LogModule } from "./logger/log.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { SchedulerService } from "./schedules/scheduler";
 import { PresetModule } from "./presets/preset/preset.module";
+import { PrometheusModule } from "@willsoto/nestjs-prometheus";
+import { MyCustomController } from "./metrics/metrics.controller";
 
 @Module({
   imports: [
@@ -24,6 +26,10 @@ import { PresetModule } from "./presets/preset/preset.module";
     DeviceModule,
     AuthModule,
     PresetModule,
+    PrometheusModule.register({
+      path: "/mymetrics",
+      controller: MyCustomController,
+    }),
     TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({
       envFilePath: ".env",

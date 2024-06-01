@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Query, Res } from "@nestjs/common";
 import { MetricsService } from "./metrics.service";
 import { CreateMetricsDto } from "./dto/create-metrics.dto";
+import { PrometheusController } from "@willsoto/nestjs-prometheus";
+import { Response } from "express";
 
 @Controller("metrics")
 export class MetricsController {
@@ -30,5 +32,13 @@ export class MetricsController {
   @Delete("old")
   async deleteOldMetrics() {
     await this.metricsService.deleteOldMetrics();
+  }
+}
+
+@Controller('apimetrics')
+export class MyCustomController extends PrometheusController {
+  @Get()
+  async index(@Res({ passthrough: true }) response: Response) {
+    return super.index(response);
   }
 }
