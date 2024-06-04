@@ -46,6 +46,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async broadcastMessage(topic: string, message: string) {
+    this.logger.config(AppGateway.name);
     this.server.to(topic).emit(topic, message);
     const deviceId = topic.split("/")[1]; // Extrai o ID do dispositivo do tópico
 
