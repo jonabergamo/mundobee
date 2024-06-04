@@ -35,10 +35,4 @@ export class MetricsController {
   }
 }
 
-@Controller('apimetrics')
-export class MyCustomController extends PrometheusController {
-  @Get()
-  async index(@Res({ passthrough: true }) response: Response) {
-    return super.index(response);
-  }
-}
+

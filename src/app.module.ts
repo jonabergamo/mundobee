@@ -16,7 +16,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { SchedulerService } from "./schedules/scheduler";
 import { PresetModule } from "./presets/preset/preset.module";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
-import { MyCustomController } from "./metrics/metrics.controller";
+import { ApiMetricsController } from "./apimetrics.controller";
 
 @Module({
   imports: [
@@ -27,8 +27,8 @@ import { MyCustomController } from "./metrics/metrics.controller";
     AuthModule,
     PresetModule,
     PrometheusModule.register({
-      path: "/mymetrics",
-      controller: MyCustomController,
+      path: "/apimetrics",
+      controller: ApiMetricsController,
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({
