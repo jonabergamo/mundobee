@@ -1,3 +1,4 @@
+import moment from "moment-timezone";
 import { Device } from "src/device/entities/device.entity";
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from "typeorm";
 
@@ -12,13 +13,19 @@ export class Metrics {
   @Column()
   outCount: number;
 
-  @Column({ nullable: true })
+  @Column("float", { nullable: true })
   temperature: number;
 
-  @Column({ nullable: true })
+  @Column("float", { nullable: true })
   humidity: number;
 
-  @CreateDateColumn()
+  @Column("float", { nullable: true })
+  outsideTemp: number;
+
+  @Column("float", { nullable: true })
+  outsideHumidity: number;
+
+  @Column("timestamp", { name: "date", default: (): string => "LOCALTIMESTAMP" })
   timestamp: Date;
 
   @ManyToOne(() => Device)

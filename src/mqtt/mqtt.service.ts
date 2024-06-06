@@ -14,7 +14,7 @@ export class MqttService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.client = mqtt.connect("mqtt://host.docker.internal:1883");
+    this.client = mqtt.connect(`mqtt://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`);
     this.logger.config(MqttService.name);
 
     this.client.on("connect", () => {

@@ -3,16 +3,16 @@ import { User } from "src/auth/enitities/user.entity";
 import { Configuration } from "src/device/entities/configuration.entity";
 import { Device } from "src/device/entities/device.entity";
 import { Metrics } from "src/metrics/entities/metrics.entity";
-import { Preset } from "src/presets/preset/entities/preset.entity";
+import "dotenv/config"; // <- this line is the important
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: "mariadb",
-  host: "host.docker.internal",
-  port: 3306,
-  username: "prisma",
-  password: "prisma",
-  database: "mqtt",
-  entities: [Device, Configuration, User, Metrics,Preset],
+  type: process.env.DB_TYPE as any,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  entities: [Device, Configuration, User, Metrics],
   synchronize: true,
   bigNumberStrings: true,
   multipleStatements: true,

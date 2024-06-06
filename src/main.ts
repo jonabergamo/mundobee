@@ -17,7 +17,10 @@ async function bootstrap() {
     .addBasicAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  app.enableCors();
+  app.enableCors({
+    allowedHeaders: "*",
+    origin: "*",
+  });
   SwaggerModule.setup("api", app, document);
   await app.listen(3333);
 }

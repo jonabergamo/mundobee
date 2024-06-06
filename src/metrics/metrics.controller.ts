@@ -31,4 +31,9 @@ export class MetricsController {
   async deleteOldMetrics() {
     await this.metricsService.deleteOldMetrics();
   }
+
+  @Delete("all")
+  async deletedAllMetric() {
+    await this.metricsService.deleteAll();
+  }
 }
