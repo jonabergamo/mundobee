@@ -26,15 +26,25 @@ export class PresetService {
     return this.presetRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} preset`;
+  async findPresetById(id: string): Promise<Preset> {
+    return this.presetRepository.findOne({ where: { id: id } });
   }
 
-  update(id: number, updatePresetDto: UpdatePresetDto) {
-    return `This action updates a #${id} preset`;
+async updatePreset(id: string, data: UpdatePresetDto): Promise<Preset> {
+  this.logger.debug("Serviço de atualização de preset esperando");
+  const result = await this.presetRepository.update(id, data);
+  if (result.affected === 0) {
+    throw new NotFoundException(`Preset with ID "${id}" not found`);
+  }
+  this.logger.debug("Serviço de atualização de preset acionado");
+  return this.presetRepository.findOne({ where: { id: id } });
+}
+
+  async deletePreset(id: string): Promise<void> {
+    const result = await this.presetRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Preset with ID "${id}" not found`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} preset`;
-  }
 }

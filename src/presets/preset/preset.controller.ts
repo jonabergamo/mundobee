@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, HttpStatus, HttpCode } from '@nestjs/common';
 import { PresetService } from './preset.service';
 import { CreatePresetDto } from './dto/create-preset.dto';
 import { UpdatePresetDto } from './dto/update-preset.dto';
@@ -16,22 +16,32 @@ export class PresetController {
   }
 
   @Get()
-  async getAllDevices() {
+  async getAllPresets() {
     return await this.presetService.findAllPresets();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.presetService.findOne(+id);
+  @Get(":id")
+  async getPresetById(@Param("id") id: string) {
+    return await this.presetService.findPresetById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePresetDto: UpdatePresetDto) {
-    return this.presetService.update(+id, updatePresetDto);
+  @Put(":id")
+  async updatePreset(@Param("id") id: string, @Body() updatePresetDto: UpdatePresetDto) {
+    try {
+      return await this.presetService.updatePreset(id, updatePresetDto);
+    } catch (error) {
+      return { success: false, error: "Error updating preset", details: error.message };
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.presetService.remove(+id);
+  @Delete(":id")
+  @HttpCode(HttpStatus.OK)
+  async deletePreset(@Param("id") id: string) {
+    try {
+      await this.presetService.deletePreset(id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "Preset configuration to delete does not exist." };
+    }
   }
 }
