@@ -7,7 +7,7 @@ import { AppGateway } from "./app.gateway";
 import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./auth/common/guards";
 import { AuthModule } from "./auth/auth.module";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeOrmConfig } from "./config/typeorm.config";
@@ -17,15 +17,15 @@ import { SchedulerService } from "./schedules/scheduler";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MetricsModule,
     MqttModule,
     UserModule,
     DeviceModule,
     AuthModule,
     TypeOrmModule.forRoot(typeOrmConfig),
-    ConfigModule.forRoot({
-      envFilePath: ".env",
-    }),
     LogModule,
     ScheduleModule.forRoot(),
   ],
