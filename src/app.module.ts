@@ -1,21 +1,33 @@
+import { MetricsModule } from "./metrics/metrics.module";
+import { MqttModule } from "./mqtt/mqtt.module";
+import { UserModule } from "./user/user.module";
 import { Module } from "@nestjs/common";
 import { MqttService } from "./mqtt/mqtt.service";
 import { AppGateway } from "./app.gateway";
 import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./auth/common/guards";
 import { AuthModule } from "./auth/auth.module";
-import { PrismaModule } from "./prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { typeOrmConfig } from "./config/typeorm.config";
+import { LogModule } from "./logger/log.module";
+import { ScheduleModule } from "@nestjs/schedule";
+import { SchedulerService } from "./schedules/scheduler";
 
 @Module({
   imports: [
+    MetricsModule,
+    MqttModule,
+    UserModule,
     DeviceModule,
     AuthModule,
-    PrismaModule,
+    TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({
       envFilePath: ".env",
     }),
+    LogModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [
@@ -25,6 +37,7 @@ import { DeviceModule } from "./device/device.module";
     },
     AppGateway,
     MqttService,
+    SchedulerService,
   ],
 })
 export class AppModule {}

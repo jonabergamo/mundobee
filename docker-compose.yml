@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   mosquitto:
     image: eclipse-mosquitto:2.0.11
@@ -28,30 +26,50 @@ services:
       - node-red-data:/data
     restart: always
 
-  nestjs-app:
-    build: .
-    container_name: nestjs-app
+  # nestjs-app:
+  #   build: .
+  #   container_name: nestjs-app
+  #   environment:
+  #     - NODE_ENV=${NODE_ENV}
+  #     - JWT_AT_SECRET=${JWT_AT_SECRET}
+  #     - JWT_RT_SECRET=${JWT_RT_SECRET}
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   ports:
+  #     - "${APP_PORT}:3333"
+  #   depends_on:
+  #     - mosquitto
+  #     - mariadb
+  #   networks:
+  #     - iot_network
+  #   restart: always
+
+  mariadb:
+    image: mariadb:10
+    restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - JWT_AT_SECRET=${JWT_AT_SECRET}
-      - JWT_RT_SECRET=${JWT_RT_SECRET}
-      - DATABASE_URL=${DATABASE_URL}
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mqtt
+      - MYSQL_USER=prisma # not used
+      - MYSQL_PASSWORD=prisma
     ports:
-      - "${APP_PORT}:3333"
-    depends_on:
-      - mosquitto
+      - '3306:3306'
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--connect']
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - mariadb-data:/var/lib/mysql
     networks:
       - iot_network
-    restart: always
 
   # mongo:
   #   image: mongo:latest
   #   container_name: mongo
   #   restart: always
+  #   command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
   #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: admin
-  #     MONGO_INITDB_ROOT_PASSWORD: password
-  #     MONGO_INITDB_DATABASE: db
+  #     MONGO_INITDB_DATABASE: mqtt
   #     MONGO_REPLICA_HOST: localhost
   #     MONGO_REPLICA_PORT: "27017"
   #   volumes:
@@ -67,4 +85,5 @@ networks:
 
 volumes:
   node-red-data: {}
-  mongo-data: {}
+  mariadb-data: {}
+  # mongo-data: {}
