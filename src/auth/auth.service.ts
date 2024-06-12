@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { AuthDto, SignupDto } from "./dto";
@@ -69,12 +69,14 @@ export class AuthService {
   }
 
   async logout(userId: string) {
+    console.log(userId);
     this.loggerService.config(AuthService.name);
     this.loggerService.debug("Serviço de logout acionado");
     try {
       await this.userRepository.update(userId, { hashedRt: null });
     } catch (error) {
       this.loggerService.error("Não foi possivel deslogar");
+      throw new HttpException("Não foi possível deslogar", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -127,3 +129,4 @@ export class AuthService {
     };
   }
 }
+
