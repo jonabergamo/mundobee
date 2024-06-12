@@ -19,3 +19,4 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   migrations: [__dirname + "/../database/migrations/*.{js,ts}"],
   migrationsRun: true,
 };
+

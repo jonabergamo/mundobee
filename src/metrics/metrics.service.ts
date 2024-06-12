@@ -19,6 +19,7 @@ export class MetricsService {
   async createMetrics(createMetricsDto: CreateMetricsDto): Promise<Metrics> {
     const moment = require("moment-timezone");
     this.logger.config(MetricsService.name);
+    this.logger.debug("Serviço de criação de metricas acionado.");
     const { deviceId, ...restData } = createMetricsDto;
 
     // Find the device by id
@@ -27,7 +28,6 @@ export class MetricsService {
     // Throw NotFoundException if device is not found
     if (!device || !device.id) {
       this.logger.error("Device not found");
-      throw new NotFoundException("Device not found");
     }
 
     const timestamp = moment().tz("America/Sao_Paulo");
@@ -62,7 +62,7 @@ export class MetricsService {
         intervalMilliseconds = 60 * 60 * 1000; // 1 hour
         break;
       default:
-        intervalMilliseconds = 1000; // default to 1 minute
+        intervalMilliseconds = 100; // default to 1 minute
         break;
     }
 
@@ -142,3 +142,4 @@ export class MetricsService {
     await this.metricsRepository.delete({});
   }
 }
+
