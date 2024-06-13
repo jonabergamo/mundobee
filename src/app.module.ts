@@ -14,7 +14,6 @@ import { typeOrmConfig } from "./config/typeorm.config";
 import { LogModule } from "./logger/log.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { SchedulerService } from "./schedules/scheduler";
-import { PresetModule } from "./presets/preset/preset.module";
 
 @Module({
   imports: [
@@ -26,7 +25,6 @@ import { PresetModule } from "./presets/preset/preset.module";
     UserModule,
     DeviceModule,
     AuthModule,
-    PresetModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     LogModule,
     ScheduleModule.forRoot(),
