@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Param, Post, UseGuards } from "
 import { AuthService } from "./auth.service";
 import { AuthDto, SignupDto } from "./dto";
 import { Tokens } from "./types";
-import { RtGuard } from "./common/guards";
+import { AtGuard, RtGuard } from "./common/guards";
 import { GetCurrentUser, GetCurrentUserId, Public } from "./common/decorators";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from "@nestjs/swagger";
 
@@ -26,9 +26,11 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @Post("logout/:id")
+  @Public()
+  @UseGuards(RtGuard)
+  @Post("logout")
   @HttpCode(HttpStatus.OK)
-  logout(@Param("id") userId: string) {
+  logout(@GetCurrentUserId() userId: string) {
     return this.authService.logout(userId);
   }
 

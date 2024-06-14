@@ -20,6 +20,7 @@ export class MetricsService {
     this.logger.debug("Serviço de criação de métricas acionado");
     const moment = require("moment-timezone");
     this.logger.config(MetricsService.name);
+    this.logger.debug("Serviço de criação de metricas acionado.");
     const { deviceId, ...restData } = createMetricsDto;
 
     // Find the device by id
@@ -113,3 +114,4 @@ export class MetricsService {
     await this.metricsRepository.delete({});
   }
 }
+

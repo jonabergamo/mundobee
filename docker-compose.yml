@@ -13,18 +13,18 @@ services:
     networks:
       - iot_network
 
-  node-red:
-    image: nodered/node-red:latest
-    container_name: node-red
-    ports:
-      - "1880:1880"
-    depends_on:
-      - mosquitto
-    networks:
-      - iot_network
-    volumes:
-      - node-red-data:/data
-    restart: always
+  # node-red:
+  #   image: nodered/node-red:latest
+  #   container_name: node-red
+  #   ports:
+  #     - "1880:1880"
+  #   depends_on:
+  #     - mosquitto
+  #   networks:
+  #     - iot_network
+  #   volumes:
+  #     - node-red-data:/data
+  #   restart: always
 
   # nestjs-app:
   #   build: .
