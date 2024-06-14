@@ -6,6 +6,7 @@ import { RtGuard } from "./common/guards";
 import { GetCurrentUser, GetCurrentUserId, Public } from "./common/decorators";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from "@nestjs/swagger";
 
+
 @ApiTags("auth")
 @Controller("auth")
 export class AuthController {

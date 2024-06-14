@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Configuration } from "../../configuration/entities/configuration.entity";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToOne } from "typeorm";
+import { Configuration } from "./configuration.entity";
+import { User } from "src/auth/enitities/user.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class Device {
@@ -9,17 +11,18 @@ export class Device {
   @Column()
   name: string;
 
-  @Column({ default: false })
-  isOn: boolean;
-
-  @Column({ default: 0 })
-  inCount: number;
-
-  @Column({ default: 0 })
-  outCount: number;
-
   @ManyToOne(() => Configuration)
   @JoinColumn({ name: "configurationId" })
   configuration: Configuration;
-}
 
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: "ownerId" })
+  owner: User;
+
+  @Column({ nullable: true })
+  ownerId: number;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  viewers: User[];
+}
