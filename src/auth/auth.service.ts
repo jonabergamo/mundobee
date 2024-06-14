@@ -65,6 +65,8 @@ export class AuthService {
     const tokens = await this.getTokens(user);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
+    this.loggerService.debug("Sucesso: " + JSON.stringify(tokens));
+
     return tokens;
   }
 
