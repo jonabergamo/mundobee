@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToOne } from "typeorm";
-import { Configuration } from "./configuration.entity";
 import { User } from "src/auth/enitities/user.entity";
-import { Exclude } from "class-transformer";
+import { Preset } from "src/presets/entities/preset.entity";
 
 @Entity()
 export class Device {
@@ -11,9 +10,9 @@ export class Device {
   @Column()
   name: string;
 
-  @ManyToOne(() => Configuration)
-  @JoinColumn({ name: "configurationId" })
-  configuration: Configuration;
+  @ManyToOne(() => Preset)
+  @JoinColumn({ name: "presetId" })
+  preset: Preset;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: "ownerId" })
