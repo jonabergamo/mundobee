@@ -1,4 +1,35 @@
+version: "3.7"
+
 services:
+  traefik:
+    image: "traefik:latest"
+    container_name: "traefik"
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=jonathanbergamo16@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=PathPrefix(`/traefik`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=user:$$2y$$05$$6m8MvyzgJ4Kl7/3rL4X6VurX1huMas8a7oPB3xRfBjFbGCR8MUi7W"
+    networks:
+      - iot_network
+
   mosquitto:
     image: eclipse-mosquitto:2.0.11
     container_name: mosquitto
@@ -12,49 +43,46 @@ services:
       - "${WS_PORT}:9001"
     networks:
       - iot_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mosquitto.rule=PathPrefix(`/mosquitto`)"
+      - "traefik.http.services.mosquitto.loadbalancer.server.port=1883"
+      - "traefik.http.routers.mosquitto-websocket.rule=PathPrefix(`/mosquitto-ws`)"
+      - "traefik.http.services.mosquitto-websocket.loadbalancer.server.port=9001"
 
-  node-red:
-    image: nodered/node-red:latest
-    container_name: node-red
+  nestjs-app:
+    build: .
+    container_name: nestjs-app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - JWT_AT_SECRET=${JWT_AT_SECRET}
+      - JWT_RT_SECRET=${JWT_RT_SECRET}
+      - DATABASE_URL=${DB_HOST}
     ports:
-      - "1880:1880"
+      - "${APP_PORT}:3333"
     depends_on:
       - mosquitto
+      - mariadb
     networks:
       - iot_network
-    volumes:
-      - node-red-data:/data
     restart: always
-
-  # nestjs-app:
-  #   build: .
-  #   container_name: nestjs-app
-  #   environment:
-  #     - NODE_ENV=${NODE_ENV}
-  #     - JWT_AT_SECRET=${JWT_AT_SECRET}
-  #     - JWT_RT_SECRET=${JWT_RT_SECRET}
-  #     - DATABASE_URL=${DATABASE_URL}
-  #   ports:
-  #     - "${APP_PORT}:3333"
-  #   depends_on:
-  #     - mosquitto
-  #     - mariadb
-  #   networks:
-  #     - iot_network
-  #   restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nestjs-app.rule=PathPrefix(`/nestjs-app`)"
+      - "traefik.http.services.nestjs-app.loadbalancer.server.port=3333"
 
   mariadb:
     image: mariadb:10
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=mqtt
-      - MYSQL_USER=prisma # not used
-      - MYSQL_PASSWORD=prisma
+      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME} # not used
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     ports:
-      - '3306:3306'
+      - "3306:3306"
     healthcheck:
-      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--connect']
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--connect"]
       interval: 5s
       timeout: 2s
       retries: 20
@@ -62,22 +90,10 @@ services:
       - mariadb-data:/var/lib/mysql
     networks:
       - iot_network
-
-  # mongo:
-  #   image: mongo:latest
-  #   container_name: mongo
-  #   restart: always
-  #   command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-  #   environment:
-  #     MONGO_INITDB_DATABASE: mqtt
-  #     MONGO_REPLICA_HOST: localhost
-  #     MONGO_REPLICA_PORT: "27017"
-  #   volumes:
-  #     - mongo-data:/data/db
-  #   ports:
-  #     - "${MONGO_PORT}:27017"
-  #   networks:
-  #     - iot_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mariadb.rule=PathPrefix(`/mariadb`)"
+      - "traefik.http.services.mariadb.loadbalancer.server.port=3306"
 
 networks:
   iot_network:
@@ -86,4 +102,4 @@ networks:
 volumes:
   node-red-data: {}
   mariadb-data: {}
-  # mongo-data: {}
+

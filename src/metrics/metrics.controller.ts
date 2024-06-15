@@ -1,14 +1,20 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Query, HttpException, HttpStatus } from "@nestjs/common";
 import { MetricsService } from "./metrics.service";
 import { CreateMetricsDto } from "./dto/create-metrics.dto";
+import { Metrics } from "./entities/metrics.entity";
 
 @Controller("metrics")
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
 
   @Post()
-  async createMetrics(@Body() createMetricsDto: CreateMetricsDto) {
-    return await this.metricsService.createMetrics(createMetricsDto);
+  async createMetrics(@Body() createMetricsDto: CreateMetricsDto): Promise<Metrics> {
+    try {
+      const metric = await this.metricsService.createMetrics(createMetricsDto);
+      return metric;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get()
@@ -22,8 +28,8 @@ export class MetricsController {
   }
 
   @Get("device/:deviceId")
-  async findAllByDeviceId(@Param("deviceId") deviceId: string, @Query("interval") interval: string) {
-    const metrics = await this.metricsService.findAllByDeviceId(deviceId, interval);
+  async findAllByDeviceId(@Param("deviceId") deviceId: string) {
+    const metrics = await this.metricsService.findAllByDeviceId(deviceId);
     return metrics;
   }
 

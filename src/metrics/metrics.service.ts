@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, LessThan, Repository } from "typeorm";
 import { Metrics } from "./entities/metrics.entity";
@@ -17,17 +17,19 @@ export class MetricsService {
   ) {}
 
   async createMetrics(createMetricsDto: CreateMetricsDto): Promise<Metrics> {
+    this.logger.debug("Serviço de criação de métricas acionado");
     const moment = require("moment-timezone");
     this.logger.config(MetricsService.name);
+    this.logger.debug("Serviço de criação de metricas acionado.");
     const { deviceId, ...restData } = createMetricsDto;
 
     // Find the device by id
     const device = await this.deviceRepository.findOne({ where: { id: deviceId } });
 
-    // Throw NotFoundException if device is not found
-    if (!device || !device.id) {
+    // Return a meaningful response if the device is not found
+    if (!device?.id) {
       this.logger.error("Device not found");
-      throw new NotFoundException("Device not found");
+      throw new HttpException("Device not found", HttpStatus.NOT_FOUND);
     }
 
     const timestamp = moment().tz("America/Sao_Paulo");
@@ -35,7 +37,7 @@ export class MetricsService {
 
     // Create a new metric entity
     const metric = this.metricsRepository.create({
-      device: device, // or simply device, TypeScript will infer
+      device, // or simply device, TypeScript will infer
       timestamp: convertedTimestamp, // Set timestamp with timezone
       ...restData,
     });
@@ -48,24 +50,7 @@ export class MetricsService {
     return this.metricsRepository.find({ relations: ["device"], order: { timestamp: "DESC" } });
   }
 
-  async findAllByDeviceId(deviceId: string, interval: string): Promise<any> {
-    let intervalMilliseconds: number;
-
-    switch (interval) {
-      case "minute":
-        intervalMilliseconds = 60 * 1000; // 1 minute
-        break;
-      case "fiveMinutes":
-        intervalMilliseconds = 5 * 60 * 1000; // 5 minutes
-        break;
-      case "hour":
-        intervalMilliseconds = 60 * 60 * 1000; // 1 hour
-        break;
-      default:
-        intervalMilliseconds = 1000; // default to 1 minute
-        break;
-    }
-
+  async findAllByDeviceId(deviceId: string): Promise<any> {
     const metrics = await this.metricsRepository.find({
       where: {
         device: { id: deviceId },
@@ -76,7 +61,6 @@ export class MetricsService {
       relations: ["device"],
     });
 
-    const filteredMetrics: Metrics[] = [];
     let dailyInCount = 0;
     let dailyOutCount = 0;
     let weeklyInCount = 0;
@@ -84,40 +68,28 @@ export class MetricsService {
     let monthlyInCount = 0;
     let monthlyOutCount = 0;
 
-    if (metrics.length > 0) {
-      let lastTimestamp = metrics[0].timestamp.getTime();
-      filteredMetrics.push(metrics[0]);
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      const now = new Date();
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-      for (let i = 1; i < metrics.length; i++) {
-        const currentTimestamp = metrics[i].timestamp.getTime();
-
-        if (currentTimestamp - lastTimestamp >= intervalMilliseconds) {
-          filteredMetrics.push(metrics[i]);
-          lastTimestamp = currentTimestamp;
-        }
-
-        if (metrics[i].timestamp > oneDayAgo) {
-          dailyInCount += metrics[i].inCount;
-          dailyOutCount += metrics[i].outCount;
-        }
-        if (metrics[i].timestamp > oneWeekAgo) {
-          weeklyInCount += metrics[i].inCount;
-          weeklyOutCount += metrics[i].outCount;
-        }
-        if (metrics[i].timestamp > oneMonthAgo) {
-          monthlyInCount += metrics[i].inCount;
-          monthlyOutCount += metrics[i].outCount;
-        }
+    for (const metric of metrics) {
+      if (metric.timestamp > oneDayAgo) {
+        dailyInCount += metric.inCount;
+        dailyOutCount += metric.outCount;
+      }
+      if (metric.timestamp > oneWeekAgo) {
+        weeklyInCount += metric.inCount;
+        weeklyOutCount += metric.outCount;
+      }
+      if (metric.timestamp > oneMonthAgo) {
+        monthlyInCount += metric.inCount;
+        monthlyOutCount += metric.outCount;
       }
     }
 
     return {
-      metrics: filteredMetrics,
+      metrics,
       dailyInCount,
       dailyOutCount,
       weeklyInCount,
@@ -142,3 +114,4 @@ export class MetricsService {
     await this.metricsRepository.delete({});
   }
 }
+

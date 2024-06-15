@@ -53,6 +53,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Register the metrics in the database
     const data = JSON.parse(message);
     // this.logger.debug(`Registering metrics: ${JSON.stringify(data)}`);
-    await this.metricsService.createMetrics({ deviceId, ...data });
+    try {
+      await this.metricsService.createMetrics({ deviceId, ...data });
+    } catch (e) {
+      this.logger.debug("Não foi possivel criar as métricas necessárias" + e);
+    }
   }
 }
