@@ -37,10 +37,10 @@ services:
     image: mariadb:10
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_USER=${DB_USERNAME} # not used
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD= "${ROOT_DBPASS}"
+      - MYSQL_DATABASE=mqtt
+      - MYSQL_USER=prisma
+      - MYSQL_PASSWORD=prisma
     ports:
       - "3306:3306"
     healthcheck:
@@ -50,6 +50,7 @@ services:
       retries: 20
     volumes:
       - mariadb-data:/var/lib/mysql
+      - ./error.log:/var/log/mysql/error.log
     networks:
       - iot_network
 
@@ -64,6 +65,16 @@ services:
       - nestjs-app
       - mariadb
       - mosquitto
+    networks:
+      - iot_network
+
+  fail2ban:
+    build: ./fail2ban
+    container_name: fail2ban
+    restart: unless-stopped
+    volumes:
+      - ./error.log:/var/log/mysql/error.log
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - iot_network
 
