@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   mosquitto:
@@ -29,6 +27,7 @@ services:
     depends_on:
       - mosquitto
       - mariadb
+      - postgres
     networks:
       - iot_network
     restart: always
@@ -53,6 +52,18 @@ services:
       - ./error.log:/var/log/mysql/error.log
     networks:
       - iot_network
+
+  postgres:
+      image: postgres:alpine
+      container_name: postgres
+      ports:
+        - '5432:5432'
+      restart: always
+      volumes:
+        - pg-data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_USER: pguser
+        POSTGRES_PASSWORD: pgpassword
 
   nginx-proxy:
     image: nginx:latest
@@ -90,4 +101,4 @@ networks:
 
 volumes:
   mariadb-data: {}
-
+  pg-data: {}
