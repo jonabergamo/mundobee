@@ -30,7 +30,6 @@ import { PresetModule } from "./presets/preset.module";
     PresetModule,
     TypeOrmModule.forRoot(typeOrmConfig),
     LogModule,
-    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [
@@ -40,7 +39,6 @@ import { PresetModule } from "./presets/preset.module";
     },
     AppGateway,
     MqttService,
-    SchedulerService,
   ],
 })
 export class AppModule {}

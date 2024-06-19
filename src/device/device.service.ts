@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateDeviceDto, UpdateDeviceDto } from "./dto";
@@ -17,7 +17,18 @@ export class DeviceService {
   ) {}
 
   async createDevice(data: CreateDeviceDto): Promise<Device> {
+    const { id } = data;
+
+    // Verificar se o ID já existe, se especificado
+    if (id) {
+      const existingDevice = await this.deviceRepository.findOne({ where: { id: id } });
+      if (existingDevice) {
+        throw new ConflictException("ID already exists");
+      }
+    }
+
     const device = this.deviceRepository.create(data);
+
     return this.deviceRepository.save(device);
   }
 
