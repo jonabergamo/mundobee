@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   mosquitto:
@@ -35,7 +37,7 @@ services:
     image: mariadb:10
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD= "${ROOT_DBPASS}"
+      - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
       - MYSQL_DATABASE=mqtt
       - MYSQL_USER=prisma
       - MYSQL_PASSWORD=prisma
@@ -67,19 +69,25 @@ services:
       - iot_network
 
   fail2ban:
-    build: ./fail2ban
+    image: lscr.io/linuxserver/fail2ban:latest
     container_name: fail2ban
-    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
     volumes:
-      - ./error.log:/var/log/mysql/error.log
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - iot_network
+      - ./fail2ban/config:/config
+      - /var/log:/var/log:ro
+    restart: unless-stopped
 
 networks:
   iot_network:
     driver: bridge
 
 volumes:
-  node-red-data: {}
   mariadb-data: {}
+
