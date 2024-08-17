@@ -2,7 +2,7 @@ import { ForbiddenException, HttpException, HttpStatus, Injectable } from "@nest
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { AuthDto, SignupDto } from "./dto";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { Tokens } from "./types";
 import { JwtService } from "@nestjs/jwt";
 import { LogService } from "src/logger/log.service";
