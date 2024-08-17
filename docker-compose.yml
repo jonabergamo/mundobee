@@ -2,14 +2,14 @@ version: "3.8"
 
 services:
     nginx:
+        environment:
+            - NGINX_HOST=${NGINX_HOST}
         build:
             context: .
             dockerfile: ./docker/nginx/Dockerfile
         container_name: nginx
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-        environment:
-            - NGINX_HOST=${NGINX_HOST}
         ports:
             - 80:80
         restart: always
@@ -19,16 +19,16 @@ services:
             - node
 
     node:
-        build:
-            context: .
-            dockerfile: ./docker/backend/Dockerfile
-            target: development
-        container_name: node
         environment:
             - NODE_ENV=${NODE_ENV}
             - JWT_AT_SECRET=${JWT_AT_SECRET}
             - JWT_RT_SECRET=${JWT_RT_SECRET}
             - DATABASE_URL=${DB_HOST}
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+            target: development
+        container_name: node
         ports:
             - ${SERVER_PORT}:${SERVER_PORT}
         env_file:
@@ -62,7 +62,7 @@ services:
         image: mariadb:10
         restart: unless-stopped
         environment:
-            - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
+            - MYSQL_ROOT_PASSWORD=${ROOT_DBPASS}
             - MYSQL_DATABASE=mqtt
             - MYSQL_USER=prisma
             - MYSQL_PASSWORD=prisma
@@ -80,6 +80,8 @@ services:
             - backend
 
     client:
+        environment:
+            - FRONT_PORT=${FRONT_PORT}
         build:
             context: .
             dockerfile: ./docker/client/Dockerfile
@@ -94,8 +96,62 @@ services:
         depends_on:
             - node
 
+    elasticsearch:
+        image: elasticsearch:${ELASTICSEARCH_VERSION}
+        container_name: elasticsearch
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        volumes:
+            - test_data:/usr/share/elasticsearch/data/
+            - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        environment:
+            - discovery.type=${ELASTICSEARCH_DISCOVERY_TYPE}
+            - http.host=${ELASTICSEARCH_HTTP_HOST}
+            - transport.host=${ELASTICSEARCH_TRANSPORT_HOST}
+            - xpack.security.enabled=${ELASTICSEARCH_XPACK_SECURITY_ENABLED}
+            - xpack.monitoring.enabled=${ELASTICSEARCH_XPACK_MONITORING_ENABLED}
+            - cluster.name=${ELASTICSEARCH_CLUSTER_NAME}
+            - bootstrap.memory_lock=${ELASTICSEARCH_BOOTSTRAP_MEMORY_LOCK}
+        networks:
+            - backend
+
+    logstash:
+        image: logstash:${LOGSTASH_VERSION}
+        container_name: logstash
+        ports:
+            - "5044:5044"
+            - "9600:9600"
+        volumes:
+            - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+            - ./logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+            - ls_data:/usr/share/logstash/data
+        networks:
+            - backend
+        depends_on:
+            - elasticsearch
+    
+    kibana:
+        image: kibana:${KIBANA_VERSION}
+        container_name: kibana
+        environment:
+            - ELASTICSEARCH_URL=${KIBANA_ELASTICSEARCH_URL}
+            - ELASTIC_PASSWORD=${KIBANA_ELASTIC_PASSWORD}
+        ports:
+            - "5601:5601"
+        volumes:
+            - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+            - kb_data:/usr/share/kibana/data
+        networks:
+            - backend
+        depends_on:
+            - elasticsearch
+
 volumes:
     mariadb-data: {}
+    test_data: {}
+    ls_data: {}
+    kb_data: {}
 
 networks:
     frontend:
