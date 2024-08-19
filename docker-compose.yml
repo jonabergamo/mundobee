@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
     nginx:
         build:
@@ -62,7 +60,7 @@ services:
             - backend
 
     mariadb:
-        image: mariadb:10
+        image: mariadb:10.6.5
         restart: unless-stopped
         environment:
             - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
@@ -99,7 +97,7 @@ services:
             - node
 
     node-red:
-        image: nodered/node-red:latest
+        image: nodered/node-red:3.0.2
         container_name: node-red
         environment:
             - TZ=America/Sao_Paulo
@@ -114,7 +112,7 @@ services:
             - mosquitto
 
     prometheus:
-        image: prom/prometheus:latest
+        image: prom/prometheus:v2.41.0
         container_name: prometheus
         volumes:
             - ./prometheus:/etc/prometheus
@@ -126,13 +124,15 @@ services:
             - backend
 
     grafana:
-        image: grafana/grafana:latest
+        image: grafana/grafana:10.0.0
         container_name: grafana
         environment:
-            - GF_SECURITY_ADMIN_PASSWORD=admin
-            - GF_SERVER_ROOT_URL=http://localhost/grafana/
-            - GF_SERVER_HTTP_PORT=5000
+            - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+            - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+            - GF_SERVER_HTTP_PORT=${GF_SERVER_HTTP_PORT}
             - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+        volumes:
+            - grafana_data:/var/lib/grafana
         ports:
             - "5000:5000"
         networks:
@@ -143,6 +143,7 @@ services:
 
 volumes:
     mariadb-data: {}
+    grafana_data:
 
 networks:
     frontend:
