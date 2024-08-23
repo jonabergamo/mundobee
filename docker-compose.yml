@@ -60,7 +60,7 @@ services:
             - backend
 
     mariadb:
-        image: mariadb:10.6.5
+        image: mariadb:10.11.8
         restart: unless-stopped
         environment:
             - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
@@ -95,21 +95,6 @@ services:
             - frontend
         depends_on:
             - node
-
-    node-red:
-        image: nodered/node-red:3.0.2
-        container_name: node-red
-        environment:
-            - TZ=America/Sao_Paulo
-        ports:
-            - "1880:1880"
-        volumes:
-            - ./node-red:/data
-        restart: always
-        networks:
-            - backend
-        depends_on:
-            - mosquitto
 
     prometheus:
         image: prom/prometheus:v2.41.0
