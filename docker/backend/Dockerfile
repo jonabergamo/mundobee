@@ -1,4 +1,4 @@
-# Etapa de desenvolvimento
+# Etapa de build
 FROM node:18-alpine AS development
 
 WORKDIR /usr/backend/src/app
