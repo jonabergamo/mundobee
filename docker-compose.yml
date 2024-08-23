@@ -126,6 +126,21 @@ services:
         depends_on:
             - prometheus
 
+    node-red:
+        image: nodered/node-red:latest
+        container_name: node-red
+        ports:
+            - "1880:1880"
+        volumes:
+            - ./node-red:/data
+        restart: always
+        networks:
+            - backend
+            - frontend
+        depends_on:
+            - mosquitto
+            - mariadb
+
 volumes:
     mariadb-data: {}
     grafana_data:
