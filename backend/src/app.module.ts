@@ -20,7 +20,7 @@ import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 
 @Module({
   imports: [
-    PrometheusModule.register({ path: "/prometrics" }),
+    PrometheusModule.register({ path: "/api/prometrics" }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
