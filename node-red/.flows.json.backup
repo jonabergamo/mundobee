@@ -1,0 +1,393 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "fe67d74b195cf3d2",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "15556779bd511e6f",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 320,
+        "y": 1220,
+        "wires": [
+            [
+                "b0f7843e30506266",
+                "e91f94868775fd8f"
+            ]
+        ]
+    },
+    {
+        "id": "5650bf1c6fca980a",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "device/eae94967-557e-4bbd-a239-6a2d0a26a89e",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "fe67d74b195cf3d2",
+        "x": 1330,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "ce8516b49de5f594",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "device/eae94967-557e-4bbd-a239-6a2d0a26a89e",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "fe67d74b195cf3d2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 450,
+        "y": 1060,
+        "wires": [
+            [
+                "d82ae38f5466eb80"
+            ]
+        ]
+    },
+    {
+        "id": "d82ae38f5466eb80",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "eacef6728cb3c5e5",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 440,
+        "y": 1520,
+        "wires": [
+            [
+                "36e70bf1351525a2",
+                "f1739c99181f2e62"
+            ]
+        ]
+    },
+    {
+        "id": "76d3cd3dd1a79ba7",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "device/e67233aa-420b-4af3-9563-880cc7090530",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "fe67d74b195cf3d2",
+        "x": 1330,
+        "y": 1420,
+        "wires": []
+    },
+    {
+        "id": "7b39d9923c4eef05",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "function 2",
+        "func": "// Verifica se a mensagem contém as respostas esperadas\nif (!msg.payload || msg.payload.length < 2) {\n    node.error(\"Resposta incompleta das requisições HTTP\", msg);\n    return null;\n}\n\n// Extrai as respostas das duas localidades\nvar data1 = msg.payload[0]; // Resposta do primeiro nó HTTP Request (Tóquio)\nvar data2 = msg.payload[1]; // Resposta do segundo nó HTTP Request (São Paulo)\n\n// Verifica se as respostas contêm os dados esperados\nif (!data1 || !data1.main || !data1.main.temp || !data1.main.humidity) {\n    node.error(\"Dados de temperatura ou umidade ausentes na resposta do primeiro nó\", msg);\n    return null;\n}\n\nif (!data2 || !data2.main || !data2.main.temp || !data2.main.humidity) {\n    node.error(\"Dados de temperatura ou umidade ausentes na resposta do segundo nó\", msg);\n    return null;\n}\n\n// Extrai temperatura e umidade\nvar temperature = data1.main.temp;\nvar humidity = data1.main.humidity;\nvar outsideTemp = data2.main.temp;\nvar outsideHumidity = data2.main.humidity;\n\nvar inCount = 0;\nvar outCount = 0;\nif (Math.random() < 1) {\n    if (Math.random() < 0.5) {\n        inCount = 1;\n    } else {\n        outCount = 1;\n    }\n}\n// Monta o payload MQTT com os dados e a data da atualização\nvar payload = {\n    temperature: temperature,\n    humidity: humidity,\n    outsideTemp: outsideTemp,\n    outsideHumidity: outsideHumidity,\n    inCount: inCount,\n    outCount: outCount,\n};\n\n// Converte o payload em string JSON\nvar message = {\n    payload: JSON.stringify(payload)\n};\n\n// Retorna a mensagem para enviar via MQTT\nreturn message;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 1520,
+        "wires": [
+            [
+                "76d3cd3dd1a79ba7"
+            ]
+        ]
+    },
+    {
+        "id": "1d0b84ace80dce1f",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "function 1",
+        "func": "// Verifica se a mensagem contém as respostas esperadas\nif (!msg.payload || msg.payload.length < 2) {\n    node.error(\"Resposta incompleta das requisições HTTP\", msg);\n    return null;\n}\n\n// Extrai as respostas das duas localidades\nvar data1 = msg.payload[0]; // Resposta do primeiro nó HTTP Request (Tóquio)\nvar data2 = msg.payload[1]; // Resposta do segundo nó HTTP Request (São Paulo)\n\n// Verifica se as respostas contêm os dados esperados\nif (!data1 || !data1.main || !data1.main.temp || !data1.main.humidity) {\n    node.error(\"Dados de temperatura ou umidade ausentes na resposta do primeiro nó\", msg);\n    return null;\n}\n\nif (!data2 || !data2.main || !data2.main.temp || !data2.main.humidity) {\n    node.error(\"Dados de temperatura ou umidade ausentes na resposta do segundo nó\", msg);\n    return null;\n}\n\n// Extrai temperatura e umidade\nvar temperature = data1.main.temp;\nvar humidity = data1.main.humidity;\nvar outsideTemp = data2.main.temp;\nvar outsideHumidity = data2.main.humidity;\n\nvar inCount = 0;\nvar outCount = 0;\nif (Math.random() < 1) {\n    if (Math.random() < 0.5) {\n        inCount = 1;\n    } else {\n        outCount = 1;\n    }\n}\n// Monta o payload MQTT com os dados e a data da atualização\nvar payload = {\n    temperature: temperature,\n    humidity: humidity,\n    outsideTemp: outsideTemp,\n    outsideHumidity: outsideHumidity,\n    inCount: inCount,\n    outCount: outCount,\n};\n\n// Converte o payload em string JSON\nvar message = {\n    payload: JSON.stringify(payload)\n};\n\n// Retorna a mensagem para enviar via MQTT\nreturn message;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 1200,
+        "wires": [
+            [
+                "5650bf1c6fca980a"
+            ]
+        ]
+    },
+    {
+        "id": "b0f7843e30506266",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?lat=-23.2053&lon=-49.6067&units=metric&appid=47ef16863026042bd18dc7604f2dd514",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 660,
+        "y": 1280,
+        "wires": [
+            [
+                "5d2a89867bd68bc6"
+            ]
+        ]
+    },
+    {
+        "id": "36e70bf1351525a2",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?lat=-23.2053&lon=-49.6067&units=metric&appid=47ef16863026042bd18dc7604f2dd514",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 700,
+        "y": 1560,
+        "wires": [
+            [
+                "212c882b5fe562f3"
+            ]
+        ]
+    },
+    {
+        "id": "e91f94868775fd8f",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?lat=-23.1936&lon=-49.3839&units=metric&appid=47ef16863026042bd18dc7604f2dd514",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 660,
+        "y": 1200,
+        "wires": [
+            [
+                "5d2a89867bd68bc6"
+            ]
+        ]
+    },
+    {
+        "id": "f1739c99181f2e62",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?lat=-23.1936&lon=-49.3839&units=metric&appid=47ef16863026042bd18dc7604f2dd514",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 1460,
+        "wires": [
+            [
+                "212c882b5fe562f3"
+            ]
+        ]
+    },
+    {
+        "id": "5d2a89867bd68bc6",
+        "type": "join",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 870,
+        "y": 1300,
+        "wires": [
+            [
+                "1d0b84ace80dce1f",
+                "583087841f673591"
+            ]
+        ]
+    },
+    {
+        "id": "212c882b5fe562f3",
+        "type": "join",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 890,
+        "y": 1520,
+        "wires": [
+            [
+                "7b39d9923c4eef05"
+            ]
+        ]
+    },
+    {
+        "id": "583087841f673591",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 1080,
+        "wires": []
+    }
+]

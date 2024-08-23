@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s # Intervalo de tempo para fazer a coleta de métricas
+  evaluation_interval: 15s # Intervalo para avaliar as regras
+
+scrape_configs:
+  - job_name: 'backend'
+    metrics_path: '/prometrics' # Caminho padrão onde as métricas são expostas
+    static_configs:
+      - targets: ['node:3333'] # Endereço do serviço da sua API Nest.js

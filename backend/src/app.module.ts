@@ -4,7 +4,7 @@ import { UserModule } from "./user/user.module";
 import { Module } from "@nestjs/common";
 import { MqttService } from "./mqtt/mqtt.service";
 import { AppGateway } from "./app.gateway";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AtGuard } from "./auth/common/guards";
 import { AuthModule } from "./auth/auth.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -15,10 +15,12 @@ import { LogModule } from "./logger/log.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { SchedulerService } from "./schedules/scheduler";
 import { PresetModule } from "./presets/preset.module";
-
+import { LoggingInterceptor } from "./logging.interceptor";
+import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 
 @Module({
   imports: [
+    PrometheusModule.register({ path: "/prometrics" }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -36,6 +38,10 @@ import { PresetModule } from "./presets/preset.module";
     {
       provide: APP_GUARD,
       useClass: AtGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
     AppGateway,
     MqttService,
