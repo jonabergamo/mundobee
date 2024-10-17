@@ -59,6 +59,19 @@ services:
         networks:
             - backend
 
+    portainer:
+        image: portainer/portainer-ce:latest
+        container_name: portainer
+        restart: unless-stopped
+        ports:
+            - "9000:9000"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - portainer_data:/data
+        networks:
+            - backend
+            - frontend
+
     mariadb:
         image: mariadb:10.11.8
         restart: unless-stopped
@@ -126,9 +139,25 @@ services:
         depends_on:
             - prometheus
 
+    node-red:
+        image: nodered/node-red:latest
+        container_name: node-red
+        ports:
+            - "1880:1880"
+        volumes:
+            - ./node-red:/data
+        restart: always
+        networks:
+            - backend
+            - frontend
+        depends_on:
+            - mosquitto
+            - mariadb
+
 volumes:
     mariadb-data: {}
     grafana_data:
+    portainer_data:
 
 networks:
     frontend:
