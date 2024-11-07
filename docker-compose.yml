@@ -1,166 +1,160 @@
 services:
-    nginx:
-        build:
-            context: .
-            dockerfile: ./docker/nginx/Dockerfile
-        container_name: nginx
-        volumes:
-            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-        environment:
-            - NGINX_HOST=${NGINX_HOST}
-        ports:
-            - 80:80
-        restart: always
-        networks:
-            - backend
-            - frontend
-        depends_on:
-            - node
-            - grafana
-            - client
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: nginx
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+    ports:
+      - '80:80'
+    restart: always
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - node
+      - grafana
+      - client
+      - mosquitto
+      - portainer
+      - mariadb
+      - prometheus
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost'] # Adjust the URL if necessary
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-    node:
-        build:
-            context: .
-            dockerfile: ./docker/backend/Dockerfile
-            target: development
-        container_name: node
-        environment:
-            - NODE_ENV=${NODE_ENV}
-            - JWT_AT_SECRET=${JWT_AT_SECRET}
-            - JWT_RT_SECRET=${JWT_RT_SECRET}
-            - DATABASE_URL=${DB_HOST}
-        ports:
-            - ${SERVER_PORT}:${SERVER_PORT}
-        env_file:
-            - .env
-        volumes:
-            - ./backend:/usr/src/app
-        restart: always
-        networks:
-            - backend
-            - frontend
-        command: npm run start:dev
-        depends_on:
-            - mosquitto
-            - mariadb
+  node:
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+      target: development
+    container_name: node
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - JWT_AT_SECRET=${JWT_AT_SECRET}
+      - JWT_RT_SECRET=${JWT_RT_SECRET}
+      - DATABASE_URL=${DB_HOST}
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/usr/src/app
+    restart: always
+    networks:
+      - backend
+      - frontend
+    command: npm run start:dev
+    depends_on:
+      - mosquitto
+      - mariadb
 
-    mosquitto:
-        image: eclipse-mosquitto:2.0.11
-        container_name: mosquitto
-        restart: always
-        volumes:
-            - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-            - ./mosquitto/data:/mosquitto/data
-            - ./mosquitto/log:/mosquitto/log
-        ports:
-            - "${MQTT_PORT}:1883"
-            - "${WS_PORT}:9001"
-        networks:
-            - backend
+  mosquitto:
+    image: eclipse-mosquitto:2.0.11
+    container_name: mosquitto
+    restart: always
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    ports:
+      - '${MQTT_PORT}:1883'
+      - '${WS_PORT}:9001'
+    networks:
+      - backend
 
-    portainer:
-        image: portainer/portainer-ce:latest
-        container_name: portainer
-        restart: unless-stopped
-        ports:
-            - "9000:9000"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - portainer_data:/data
-        networks:
-            - backend
-            - frontend
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - backend
+      - frontend
 
-    mariadb:
-        image: mariadb:10.11.8
-        restart: unless-stopped
-        environment:
-            - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
-            - MYSQL_DATABASE=mqtt
-            - MYSQL_USER=prisma
-            - MYSQL_PASSWORD=prisma
-            - TZ='America/Sao_Paulo'
-        ports:
-            - "3306:3306"
-        healthcheck:
-            test: [ "CMD", "/usr/local/bin/healthcheck.sh", "--connect" ]
-            interval: 5s
-            timeout: 2s
-            retries: 20
-        volumes:
-            - mariadb-data:/var/lib/mysql
-            - ./error.log:/var/log/mysql/error.log
-        networks:
-            - backend
+  mariadb:
+    image: mariadb:10.11.8
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD="${ROOT_DBPASS}"
+      - MYSQL_DATABASE=mqtt
+      - MYSQL_USER=prisma
+      - MYSQL_PASSWORD=prisma
+      - TZ='America/Sao_Paulo'
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--connect']
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./error.log:/var/log/mysql/error.log
+    networks:
+      - backend
 
-    client:
-        build:
-            context: .
-            dockerfile: ./docker/client/Dockerfile
-        container_name: client
-        ports:
-            - ${FRONT_PORT}:${FRONT_PORT}
-        volumes:
-            - ./client:/usr/src/app
-        restart: always
-        networks:
-            - frontend
-        depends_on:
-            - node
+  client:
+    build:
+      context: .
+      dockerfile: ./docker/client/Dockerfile
+    container_name: client
+    ports:
+      - ${FRONT_PORT}:${FRONT_PORT}
+    volumes:
+      - ./client:/usr/src/app
+    restart: always
+    networks:
+      - frontend
+    depends_on:
+      - node
 
-    prometheus:
-        image: prom/prometheus:v2.41.0
-        container_name: prometheus
-        volumes:
-            - ./prometheus:/etc/prometheus
-        ports:
-            - "9090:9090"
-        command:
-            - '--config.file=/etc/prometheus/prometheus.yml'
-        networks:
-            - backend
+  prometheus:
+    image: prom/prometheus:v2.41.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - '9090:9090'
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - backend
 
-    grafana:
-        image: grafana/grafana:10.0.0
-        container_name: grafana
-        environment:
-            - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
-            - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
-            - GF_SERVER_HTTP_PORT=${GF_SERVER_HTTP_PORT}
-            - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
-        volumes:
-            - grafana_data:/var/lib/grafana
-        ports:
-            - "5000:5000"
-        networks:
-            - backend
-            - frontend
-        depends_on:
-            - prometheus
-
-    node-red:
-        image: nodered/node-red:latest
-        container_name: node-red
-        ports:
-            - "1880:1880"
-        volumes:
-            - ./node-red:/data
-        restart: always
-        networks:
-            - backend
-            - frontend
-        depends_on:
-            - mosquitto
-            - mariadb
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SERVER_HTTP_PORT=${GF_SERVER_HTTP_PORT}
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - '5000:5000'
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - prometheus
 
 volumes:
-    mariadb-data: {}
-    grafana_data:
-    portainer_data:
+  mariadb-data: {}
+  grafana_data:
+  portainer_data:
 
 networks:
-    frontend:
-        driver: bridge
-    backend:
-        driver: bridge
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

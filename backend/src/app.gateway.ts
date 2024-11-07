@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket, MessageBody } from "@nestjs/websockets";
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, ConnectedSocket, MessageBody } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { DeviceService } from "./device/device.service";
 import { LogService } from "./logger/log.service";
@@ -11,14 +11,26 @@ import { MetricsService } from "./metrics/metrics.service";
     credentials: true,
   },
 })
-export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private deviceService: DeviceService,
     private logger: LogService,
     private metricsService: MetricsService,
   ) {}
 
-  @WebSocketServer() server: Server;
+  @WebSocketServer()
+  server: Server;
+
+  /**
+   * This method is called after the gateway is initialized.
+   * Here, you can set up event listeners for error handling.
+   */
+  afterInit(server: Server) {
+    this.logger.config(AppGateway.name);
+    server.on("connect_error", err => {
+      this.logger.error(`Connection error: ${err.message}`);
+    });
+  }
 
   handleConnection(client: Socket) {
     this.logger.config(AppGateway.name);
@@ -41,22 +53,21 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("unsubscribe")
   handleUnsubscribe(@ConnectedSocket() client: Socket, @MessageBody() data: string) {
     const parsedData = JSON.parse(data);
-    console.log(`Unsubscribing ${client.id} from topic ${parsedData.topic}`);
+    this.logger.debug(`Unsubscribing client ${client.id} from topic ${parsedData.topic}`);
     client.leave(parsedData.topic);
   }
 
   async broadcastMessage(topic: string, message: string) {
     this.logger.config(AppGateway.name);
     this.server.to(topic).emit(topic, message);
-    const deviceId = topic.split("/")[1]; // Extrai o ID do dispositivo do tópico
+    const deviceId = topic.split("/")[1]; // Extract device ID from topic
 
     // Register the metrics in the database
     const data = JSON.parse(message);
-    // this.logger.debug(`Registering metrics: ${JSON.stringify(data)}`);
     try {
       await this.metricsService.createMetrics({ deviceId, ...data });
     } catch (e) {
-      this.logger.debug("Não foi possivel criar as métricas necessárias" + e);
+      this.logger.error("Failed to create metrics: " + e);
     }
   }
 }

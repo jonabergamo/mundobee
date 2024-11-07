@@ -31,8 +31,7 @@ interface AuthContextProps {
 
 const SECRET_KEY =
   process.env.TOKEN_SECRET_KEY ??
-  "j3aK1s/tYqABLltaHH3Bt9qYzWqh/qy6sxj4gWqthRk="; // Troque por uma chave segura
-
+  "j3aK1s/tYqABLltaHH3Bt9qYzWqh/qy6sxj4gWqthRk="; 
 export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
