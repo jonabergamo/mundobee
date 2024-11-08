@@ -7,4 +7,4 @@ COPY cloudflare_origin.crt /etc/ssl/certs/cloudflare_origin.crt
 COPY cloudflare_origin.key /etc/ssl/private/cloudflare_origin.key
 
 # Copiar o arquivo de configuração do Nginx para o container
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/default.conf
