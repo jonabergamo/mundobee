@@ -6,6 +6,8 @@ services:
     container_name: nginx
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/cloudflare_origin.key:/etc/ssl/private/cloudflare_origin.key
+      - ./docker/nginx/cloudflare_origin.crt:/etc/ssl/private/cloudflare_origin.crt
     environment:
       - NGINX_HOST=${NGINX_HOST}
     ports:
