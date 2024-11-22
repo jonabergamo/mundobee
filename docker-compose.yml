@@ -17,6 +17,7 @@ services:
     depends_on:
       - node
       - grafana
+      - client
       - mosquitto
       - portainer
       - mariadb
@@ -101,6 +102,21 @@ services:
       - ./error.log:/var/log/mysql/error.log
     networks:
       - backend
+
+  client:
+    build:
+      context: .
+      dockerfile: ./docker/client/Dockerfile
+    container_name: client
+    ports:
+      - ${FRONT_PORT}:${FRONT_PORT}
+    volumes:
+      - ./client:/usr/src/app
+    restart: always
+    networks:
+      - frontend
+    depends_on:
+      - node
 
   prometheus:
     image: prom/prometheus:v2.41.0
